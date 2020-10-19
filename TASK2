@@ -1,0 +1,394 @@
+/*
+Задания  для   выполнения  на компьютере имеют различные
+приоритеты, задаваемые цифрами от 1 до 5 (5-высший приоритет).
+Для каждого приоритета образуется отдельная очередь. Приоритет
+задания  может  меняться.  При  повышении  приоритета  задание
+помещается в конец другой очереди, а при понижении - в начало.
+Составить программу, обеспечивающую:
+   1) выдачу общей очереди;
+   2) выдачу очереди заданного приоритета;
+   3) перестройку очередей при изменении приоритета (7).
+Тихомирова Кристина ПС-21
+С++ Microsoft Visual Studio Community 2019
+форматы данных: int
+пример входа: 1, 2, 3;
+*/
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+class MyQueue
+{
+	struct Node
+	{
+		int info;
+		Node* next;
+		Node(int info)
+		{
+			this->info = info; this->next = NULL;
+		}
+	};
+	Node* head, * tail;
+public:
+	MyQueue();//конструктор
+	bool IsEmpty();//проверка на пустоту
+	void PushBack(int info);//добавление в конец
+	void PushFront(int info);//добавление в начало
+	void PopFront();//удаление первого
+	void PopBack();//удаление последнего
+	bool DeleteByNumber(int n);//удаление по значению
+	void Print();//печать
+	void MoveNumberToBiggerQue(MyQueue& q, int n);//перемещение в большой приоритет
+	void MoveNumberToLowerQue(MyQueue& q, int n);//перемещение в маленький приоритет
+	void Insert(int n);
+};
+MyQueue::MyQueue()
+{
+	head = tail = NULL;
+}
+
+bool MyQueue::IsEmpty()
+{
+	/*if (head == NULL)
+		return true;
+	return false;*/
+	return head == NULL;
+}
+void MyQueue::PushBack(int info)//добавление в конец
+{
+	if (IsEmpty())
+		head = tail = new Node(info);
+	else
+	{
+		tail->next = new Node(info);
+		tail = tail->next;
+	}
+}
+void MyQueue::PushFront(int info)//добавление в начало
+{
+	if (IsEmpty())
+		head = tail = new Node(info);
+	else
+	{
+		Node* h = new Node(info);
+		h->next = head;
+		head = h;
+	}
+}
+void MyQueue::PopFront()//удаляет первый эл-т
+{
+	if (head == 0)
+	{
+		return;
+	}
+	else if (head == tail)
+	{
+		delete head;
+		return;
+	}
+	Node* temp = head;
+	head = temp->next;
+	delete temp;
+}
+bool MyQueue::DeleteByNumber(int n) // return true if delete something else return false
+{
+	if (head->info == n)
+	{
+		PopFront();
+		return true;
+	}
+	else if (tail->info == n)
+	{
+		PopBack();
+		return true;
+	}
+	else
+	{
+		Node* help = head;
+		if (help->info == n)
+		{
+			return true;
+		}
+		else return false;
+		while (help->next->info != n)
+			help = help->next;
+		if (help->next->info == n)
+		{
+			Node* temp = help->next->next;
+			delete help->next;
+			help->next = temp;
+			return true;
+		}
+
+	}
+}
+void MyQueue::PopBack()
+{
+	if (head == 0)
+	{
+		return;
+	}
+	else if (head == tail)
+	{
+		delete head;
+		head = tail = NULL;
+		return;
+	}
+	Node* temp = head;
+	while (temp->next->next != NULL)
+	{
+		temp = temp->next;
+	}
+	delete temp->next;
+	tail = temp;
+	tail->next = nullptr;
+}
+void MyQueue::Print()
+{
+	Node* help = head;
+	while (help != 0)
+	{
+		cout << help->info << " ";
+		help = help->next;
+	}
+	cout << endl;
+}
+void MyQueue::MoveNumberToBiggerQue(MyQueue& q, int n)
+{
+
+	if (DeleteByNumber(n)) // if this que contains n delete it and push to another que
+		q.PushBack(n);
+	else cout << "такого номера нет в этом списке задач!\n";
+}
+void MyQueue::MoveNumberToLowerQue(MyQueue& q, int n)
+{
+
+	if (DeleteByNumber(n)) // if this que contains n delete it and push to another que
+		q.PushFront(n);
+	else cout << "такого номера нет в этом списке задач!\n";
+}
+void MyQueue::Insert(int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		int j;
+		cout << "номер задания ";
+		cin >> j;
+		PushBack(j);
+	}
+}
+void PrintAll(MyQueue& q1, MyQueue& q2, MyQueue& q3, MyQueue& q4, MyQueue& q5)
+{
+	cout << "очередь 1:\n";
+	q1.Print();
+	cout << "очередь 2:\n";
+	q2.Print();
+	cout << "очередь 3:\n";
+	q3.Print();
+	cout << "очередь 4:\n";
+	q4.Print();
+	cout << "очередь 5:\n";
+	q5.Print();
+}
+int main()
+{
+	setlocale(LC_ALL, "ru");
+	ifstream main_in;
+	ifstream fin;
+	ofstream out;
+	string inf, outf;
+	string task;
+	cout << "Insert input file name: ";
+	getline(cin, inf);
+	cout << "Insert output file name: ";
+	getline(cin, outf);
+	main_in.open(inf);
+	if (!main_in.is_open())
+	{
+		cout << "Error opening input file" << endl;
+		return -1;
+	}
+
+	
+	MyQueue q1, q2, q3, q4, q5;
+	
+	/*
+	cout << "количество задач в очереди номер 1: ";
+	cin >> n1;
+	cout << "количество задач в очереди номер 2: ";
+	cin >> n2;
+	cout << "количество задач в очереди номер 3: ";
+	cin >> n3;
+	cout << "количество задач в очереди номер 4: ";
+	cin >> n4;
+	cout << "количество задач в очереди номер 5: ";
+	cin >> n5;*/
+	
+
+	int n1, n2, n3, n4, n5;
+	cout << "очередь 1:\n";
+	if (!main_in.eof)
+	{
+		getline(main_in, task);
+		out.open(outf);
+		q1.Insert(n1);
+	}
+	
+	cout << "очередь 2:\n";
+	q2.Insert(n2);
+	cout << "очередь 3:\n";
+	q3.Insert(n3);
+	cout << "очередь 4:\n";
+	q4.Insert(n4);
+	cout << "очередь 5:\n";
+	q5.Insert(n5);
+	cout << "до:\n";
+	PrintAll(q1, q2, q3, q4, q5);
+	int i, n;
+	cout << "введите номер задачи:";
+	cin >> n;
+	cout << "1.из первой очереди\n";
+	cout << "2.из второй очереди\n";
+	cout << "3.из третьей очереди\n";
+	cout << "4.из четвертой очереди\n";
+	cout << "5.из пятой очереди\n";
+	cin >> i;
+	switch (i)
+	{
+	case 1:
+	{
+		//cout<< "1.в первую очереди\n";
+		int j;
+		cout << "2 во вторую очередь\n";
+		cout << "3.в третью очередь\n";
+		cout << "4.в четвертую очередь\n";
+		cout << "5.в пятую очередь\n";
+		cin >> j;
+		switch (j)
+		{
+		case 2:
+			q1.MoveNumberToBiggerQue(q2, n);
+			break;
+		case 3:
+			q1.MoveNumberToBiggerQue(q3, n);
+			break;
+		case 4:
+			q1.MoveNumberToBiggerQue(q4, n);
+			break;
+		case 5:
+			q1.MoveNumberToBiggerQue(q5, n);
+			break;
+		}
+		break;
+	}
+	case 2:
+	{
+		int j;
+		cout << "1.в первую очереди\n";
+		//cout << "2 во вторую очередь\n";
+		cout << "3.в третью очередь\n";
+		cout << "4.в четвертую очередь\n";
+		cout << "5.в пятую очередь\n";
+		cin >> j;
+		switch (j)
+		{
+		case 1:
+			q2.MoveNumberToLowerQue(q1, n);
+			break;
+		case 3:
+			q2.MoveNumberToBiggerQue(q3, n);
+			break;
+		case 4:
+			q2.MoveNumberToBiggerQue(q4, n);
+			break;
+		case 5:
+			q2.MoveNumberToBiggerQue(q5, n);
+			break;
+		}
+		break;
+	}
+	case 3:
+	{
+		int j;
+		cout << "1.в первую очереди\n";
+		cout << "2 во вторую очередь\n";
+		//cout << "3.в третью очередь\n";
+		cout << "4.в четвертую очередь\n";
+		cout << "5.в пятую очередь\n";
+		cin >> j;
+		switch (j)
+		{
+		case 1:
+			q3.MoveNumberToLowerQue(q1, n);
+			break;
+		case 2:
+			q3.MoveNumberToLowerQue(q2, n);
+			break;
+		case 4:
+			q3.MoveNumberToBiggerQue(q4, n);
+			break;
+		case 5:
+			q3.MoveNumberToBiggerQue(q5, n);
+			break;
+		}
+		break;
+	}
+	case 4:
+	{
+		int j;
+		cout << "1.в первую очереди\n";
+		cout << "2 во вторую очередь\n";
+		cout << "3.в третью очередь\n";
+		//cout << "4.в четвертую очередь\n";
+		cout << "5.в пятую очередь\n";
+		cin >> j;
+		switch (j)
+		{
+		case 1:
+			q4.MoveNumberToLowerQue(q1, n);
+			break;
+		case 2:
+			q4.MoveNumberToLowerQue(q2, n);
+			break;
+		case 3:
+			q4.MoveNumberToLowerQue(q3, n);
+			break;
+		case 5:
+			q4.MoveNumberToBiggerQue(q5, n);
+			break;
+		}
+		break;
+	}
+	case 5:
+	{
+		int j;
+		cout << "1.в первую очереди\n";
+		cout << "2 во вторую очередь\n";
+		cout << "3.в третью очередь\n";
+		cout << "4.в четвертую очередь\n";
+		//cout << "5.в пятую очередь\n";
+		cin >> j;
+		switch (j)
+		{
+		case 1:
+			q5.MoveNumberToLowerQue(q1, n);
+			break;
+		case 2:
+			q5.MoveNumberToLowerQue(q2, n);
+			break;
+		case 3:
+			q5.MoveNumberToLowerQue(q3, n);
+			break;
+		case 4:
+			q5.MoveNumberToLowerQue(q4, n);
+			break;
+		}
+		break;
+
+	}
+	}
+	cout << "после:\n";
+	PrintAll(q1, q2, q3, q4, q5);
+}
